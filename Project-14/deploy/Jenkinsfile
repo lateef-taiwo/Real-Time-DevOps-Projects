@@ -1,0 +1,113 @@
+pipeline {
+  agent any
+
+  environment {
+      ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg"
+    }
+
+  parameters {
+      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+    }
+
+  stages {
+      stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+      }
+
+      stage('Checkout SCM') {
+         steps{
+            git branch: 'feature/jenkinspipeline-stages', url: 'https://github.com/lateef-taiwo/CONTINUOUS-INTEGRATION-CI-WITH-JENKINS-ANSIBLE-ARTIFACTORY-SONARQUBE-PHP.git'
+         }
+      }
+
+      stage('Prepare Ansible For Execution') {
+        steps {
+          sh 'echo ${WORKSPACE}' 
+          sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'  
+        }
+      }
+
+      stage('Run Ansible playbook') {
+        steps {
+           ansiblePlaybook become: true, colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'Ansible', inventory: 'inventory/${inventory}', playbook: 'playbooks/site.yml', vaultTmpPath: ''
+           ansiblePlaybook become: true, colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory/dev', playbook: 'playbooks/site.yml'
+         }
+      }
+
+      stage('Clean Workspace after build'){
+        steps{
+          cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
+        }
+      }
+  }
+}
+
+// A simple pipeline to test build actions
+// pipeline {
+//     agent any
+
+//       Setup stage to delete the workspace, that is cleanup the workspace on the jenkins server
+//     stages {
+//         stage('Ininitial Cleanup'){
+//             steps{
+//                 dir("$WORKSPACE"){
+//                   deleteDir()
+//                 }
+//             }
+//             }
+//         stage('Build') {
+//             steps {
+//                 script {
+//                     sh 'echo "Building Stage"'
+//                 }
+//             }
+//         }
+
+//         stage('Test') {
+//             steps {
+//                 script {
+//                     sh 'echo "Testing Stage"'
+//                 }
+//             }
+//         }
+
+//         stage('Package') {
+//             steps {
+//                 script {
+//                     sh 'echo "Package Stage"'
+//                 }
+//             }
+//         }
+
+//         stage('Deploy') {
+//             steps {
+//                 script {
+//                     sh 'echo "Deploy Stage"'
+//                 }
+//             }
+//         }
+
+//         Setup stage to delete the workspace, that is cleanup the workspace on the jenkins server
+//         stage('Clean up') {
+//             steps {
+//                 script {
+//                     sh 'echo "Clean up"'
+//                 }
+//                 cleanWs()
+//             }
+//         }
+//     }
+
+//     post {
+//         success {
+//             echo 'All stages executed successfully!'
+//         }
+//         failure {
+//             echo 'Pipeline failed. Check logs for details.'
+//         }
+//     }
+// }
