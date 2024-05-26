@@ -1,0 +1,25 @@
+- name: Install PyMySQL
+  pip:
+    name: pymysql
+    state: present
+    
+- name: create database
+  community.mysql.mysql_db:
+    login_host: "terraform-2022120519211320500000000c.cmf4wglvyueg.us-east-1.rds.amazonaws.com"
+    login_user: "tony"
+    login_password: "devopspbl"
+    name: toolingdb
+    collation: utf8_general_ci
+    encoding: utf8
+    state: present
+
+- name: Input tooling credentials
+  ansible.builtin.replace:
+    path: /var/www/html/functions.php
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.line }}"
+  loop:
+    - { regexp: '^mysql.tooling.svc.cluster.local', replace: "terraform-2023031311575135940000000b.cs7johsxaygg.us-east-1.rds.amazonaws.com" }
+    - { regexp: '^admin', replace: "tony" }
+    - { regexp: '^tooling', replace: "toolingdb" }
+    - { regexp: '^admin', replace: "devopspbl" }

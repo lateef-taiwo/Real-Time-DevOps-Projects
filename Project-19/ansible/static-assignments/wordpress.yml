@@ -1,0 +1,5 @@
+---
+- hosts: tag_Name_TCS_wordpress
+  become: true
+  roles:
+     - wordpress

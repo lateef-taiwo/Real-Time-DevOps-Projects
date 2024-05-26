@@ -1,0 +1,8 @@
+root/.terraform.lock.hcl
+root/.terraform.lock.hcl_bkp
+root/.terraform/*
+root/.terraform_bkp/*
+terraform.tfstate
+root/.terraform.lock.hcl
+root/.terraform/**
+Jenkinsfile

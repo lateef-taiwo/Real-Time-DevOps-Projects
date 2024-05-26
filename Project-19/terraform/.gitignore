@@ -1,0 +1,4 @@
+.terraform
+.terraform.*
+terraform.tfs*
+terraform.auto.tfvars

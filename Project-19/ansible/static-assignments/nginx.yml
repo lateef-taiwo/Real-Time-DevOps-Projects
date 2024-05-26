@@ -1,0 +1,5 @@
+---
+- hosts: tag_Name_TCS_nginx
+  become: true
+  roles:
+    - nginx
